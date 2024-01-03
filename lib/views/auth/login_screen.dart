@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_firebase/views/auth/register_screen.dart';
 import 'package:flutter_chat_firebase/views/home_screen.dart';
@@ -17,7 +18,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login Page', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Login Screen',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.blueGrey,
         centerTitle: true,
       ),
@@ -33,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 16.0),
             //title Code with Bahri
             const Text(
-              'Code with Bahri',
+              'Welcome!\nLogin to continue',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 24,
@@ -62,8 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const HomeScreen()));
+                  _login();
                 },
                 child: const Text('Login'),
               ),
@@ -87,5 +90,35 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void _login() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text, password: _passwordController.text);
+      if (context.mounted) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()));
+      }
+    } catch (e) {
+      if (context.mounted) {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Login Failed'),
+                content: Text(e.toString()),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            });
+      }
+    }
   }
 }
